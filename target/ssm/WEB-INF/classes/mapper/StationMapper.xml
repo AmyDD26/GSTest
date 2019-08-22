@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.soecode.lyf.dao.StationMapper">
+	<resultMap id="BaseResultMap" type="com.soecode.lyf.pojo.EtcStafivInfo" >
+		<constructor >
+			<arg column="StationID" jdbcType="VARCHAR" javaType="java.lang.String" />
+			<arg column="StarTime" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+			<arg column="EndTime" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+			<arg column="Volume" jdbcType="INTEGER" javaType="java.lang.Integer" />
+		</constructor>
+	</resultMap>
+
+	<resultMap id="StaPerFivInfoResultMap" type="com.soecode.lyf.pojo.StaPerFivInfo" >
+		<constructor >
+			<arg column="entryStation" jdbcType="VARCHAR" javaType="java.lang.String" />
+			<arg column="entryTime" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+			<arg column="vehicleLicense" jdbcType="VARCHAR" javaType="java.lang.String" />
+			<arg column="vehicleType" jdbcType="INTEGER" javaType="java.lang.Integer" />
+		</constructor>
+	</resultMap>
+
+	<resultMap id="EtcStafivInfoMap" type="com.soecode.lyf.pojo.EtcStafivInfo" >
+		<constructor >
+			<arg column="entryStation" jdbcType="VARCHAR" javaType="java.lang.String" />
+			<arg column="entryTime" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+			<arg column="vehicleLicense" jdbcType="VARCHAR" javaType="java.lang.String" />
+			<arg column="vehicleType" jdbcType="INTEGER" javaType="java.lang.Integer" />
+			<arg column="ETCCPUID" jdbcType="VARCHAR" javaType="java.lang.String" />
+		</constructor>
+	</resultMap>
+
+	<resultMap id="EtcStaHourInfoMap" type="com.soecode.lyf.pojo.EtcStaHourInfo" >
+		<constructor >
+			<arg column="stationID" jdbcType="VARCHAR" javaType="java.lang.String" />
+			<arg column="date" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+			<arg column="Volume" jdbcType="INTEGER" javaType="java.lang.Integer" />
+		</constructor>
+	</resultMap>
+
+	<resultMap id="StaDayEtcOrMtcInfoMap" type="com.soecode.lyf.pojo.StaDayEtcOrMtcInfo" >
+		<constructor >
+			<arg column="stationID" jdbcType="VARCHAR" javaType="java.lang.String" />
+			<arg column="date" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+			<arg column="Volume" jdbcType="INTEGER" javaType="java.lang.Integer" />
+		</constructor>
+	</resultMap>
+
+	<resultMap id="AreaStaOneHourInfoMap" type="com.soecode.lyf.pojo.AreaStaOneHourInfo" >
+		<constructor >
+			<arg column="AreaID" jdbcType="INTEGER" javaType="java.lang.Integer" />
+			<arg column="areaName" jdbcType="VARCHAR" javaType="java.lang.String" />
+			<arg column="Volume" jdbcType="INTEGER" javaType="java.lang.Integer" />
+		</constructor>
+	</resultMap>
+
+
+	<!-- 目的：为dao接口方法提供sql语句配置 -->
+	<select id="queryById" resultType="string" parameterType="string">
+		<!-- 具体的sql -->
+		SELECT
+			StationName
+		FROM
+			tb_station
+		WHERE
+			StationID = #{stationID}
+	</select>
+
+	<select id="selectStaInfoPerFiv" parameterType="map" resultMap="StaPerFivInfoResultMap">
+
+		SELECT ENTRYSTATION,ENTRYTIME,VEHICLELICENSE,VEHICLETYPE
+		FROM entry
+		<where>
+			<if test="stationId != null">
+				and ENTRYSTATION = #{stationId}
+			</if>
+			and ENTRYTIME BETWEEN #{startTime} and #{endTime}
+		</where>
+	</select>
+
+	<select id="selectFivProInInfo" parameterType="map" resultMap="StaPerFivInfoResultMap">
+			SELECT ENTRYSTATION,ENTRYTIME,VEHICLELICENSE,VEHICLETYPE
+			FROM entry
+			<where>
+				<if test="stationId!=null">
+					ENTRYSTATION = #{stationId}
+				</if>
+				<if test="startTime != null">
+					and ENTRYTIME BETWEEN #{startTime}
+				</if>
+				<if test="endTime != null">
+					and #{endTime}
+				</if>
+				and VEHICLELICENSE  LIKE '%豫%'
+			</where>
+
+	</select>
+
+	<select id="selectFivProOutInfo" parameterType="map" resultMap="StaPerFivInfoResultMap">
+			SELECT ENTRYSTATION,ENTRYTIME,VEHICLELICENSE,VEHICLETYPE
+			FROM entry
+			<where>
+				<if test="stationId!=null">
+					ENTRYSTATION = #{stationId}
+				</if>
+				<if test="startTime != null">
+					and ENTRYTIME BETWEEN #{startTime}
+				</if>
+				<if test="endTime != null">
+					and #{endTime}
+				</if>
+				and VEHICLELICENSE  NOT LIKE '%豫%'
+			</where>
+
+	</select>
+
+	<select id="selectCarOrTruckFivInfo" parameterType="map" resultMap="StaPerFivInfoResultMap">
+	SELECT ENTRYSTATION,ENTRYTIME,VEHICLELICENSE,VEHICLETYPE
+	FROM entry
+	<where>
+		<if test="stationId!=null">
+			ENTRYSTATION = #{stationId}
+		</if>
+		<if test="startTime != null">
+			and ENTRYTIME BETWEEN #{startTime}
+		</if>
+		<if test="endTime != null">
+			and #{endTime}
+		</if>
+		<if test="type!=null">
+			and VEHICLETYPE = #{type}
+		</if>
+	</where>
+</select>
+
+	<select id="selectEtcInfoPerFiv" parameterType="map" resultMap="EtcStafivInfoMap">
+
+		SELECT ENTRYSTATION,ENTRYTIME,VEHICLELICENSE,VEHICLETYPE,ETCCPUID
+		FROM entry
+		<where>
+			<if test="stationId != null">
+				and ENTRYSTATION = #{stationId}
+			</if>
+			<if test="startTime!=null">
+				and ENTRYTIME BETWEEN #{startTime}
+			</if>
+			<if test="endTime!=null">
+				and #{endTime}
+			</if>
+			and ETCCPUID is not null
+		</where>
+	</select>
+
+	<select id="selectMtcInfoPerFiv" parameterType="map" resultMap="EtcStafivInfoMap">
+
+		SELECT ENTRYSTATION,ENTRYTIME,VEHICLELICENSE,VEHICLETYPE,ETCCPUID
+		FROM entry
+		<where>
+			<if test="stationId != null">
+				and ENTRYSTATION = #{stationId}
+			</if>
+			<if test="startTime!=null">
+				and ENTRYTIME BETWEEN #{startTime}
+			</if>
+			<if test="endTime!=null">
+				and #{endTime}
+			</if>
+			and ETCCPUID is null
+		</where>
+	</select>
+
+	<select id="selectEtcVolumePerHour" parameterType="map" resultMap="EtcStaHourInfoMap">
+		select stationID , date ,volume
+		from  tb_PerStaOneHour
+		<where>
+			<if test="stationId!=null">
+				stationID = #{stationId}
+			</if>
+			<if test="startTime!=null">
+				and date = #{startTime}
+			</if>
+		</where>
+	</select>
+
+    <select id="selectStaETCOrMTCByType" parameterType="map" resultType="StaDayEtcOrMtcInfo">
+        select stationID,date,volume
+        from tb_PerStaVolSortByType
+        <where>
+            <if test="stationId != null">
+                and stationID = #{stationId}
+            </if>
+            <if test="date != null">
+                and date = #{date}
+            </if>
+            <if test="type != null">
+                and type = #{type}
+            </if>
+        </where>
+    </select>
+
+	<select id="selectStaDay" parameterType="map" resultMap="StaDayEtcOrMtcInfoMap">
+		select stationID,date,SUM(volume) as 'volume'
+		from tb_PerStaOneDayEM
+		<where>
+			<if test="stationId != null">
+				and stationID = #{stationId}
+			</if>
+			<if test="date != null">
+				and date = #{date}
+			</if>
+		</where>
+	</select>
+
+	<select id="queryAreaHourByIdAndDate" parameterType="map" resultMap="AreaStaOneHourInfoMap">
+		SELECT b.AreaID,a.areaName,SUM(b.volume) as 'volume'
+		FROM tb_Area a LEFT JOIN tb_AreaOneHour b on a.id = b.AreaID and b.AreaID = #{areaId}
+		<where>
+			<if test="startDate!=null">
+				b.date BETWEEN #{startDate}
+			</if>
+			<if test="endDate !=null">
+				and #{endDate}
+			</if>
+		</where>
+	</select>
+
+	<select id="queryStaPerMonth" parameterType="map" resultType="com.soecode.lyf.vo.StaMonthInfo">
+		SELECT b.volume,a.StationName,b.date
+		FROM tb_station a LEFT JOIN tb_PerStaOneMonth b on a.StationID = b.stationID and b.stationID = #{stationId}
+		<where>
+			<if test="date!=null">
+				b.date = #{date}
+			</if>
+		</where>
+	</select>
+
+	<select id="queryEtcSectionByiId" parameterType="map" resultType="EtcSectionMonthInfo">
+		SELECT sectionName,date,volume
+		FROM tb_ETCSection
+		<where>
+			<if test="sectionId !=null ">
+				sectionID = #{sectionId}
+			</if>
+			<if test="date !=null">
+				and date = #{date}
+			</if>
+		</where>
+
+	</select>
+
+	<select id="queryNameByID" parameterType="string" resultType="java.util.HashMap">
+		SELECT StationID,StationName
+		FROM tb_station_area
+		<where>
+			<if test="sectionId!=null">
+				SectionID = #{sectionId}
+			</if>
+		</where>
+	</select>
+
+	<select id="querySectionNameById" parameterType="string" resultType="com.soecode.lyf.vo.SectionFivVolumeVo">
+		SELECT SectionName,FreewayName FROM `tb_section`
+		<where>
+			<if test="sectionId !=null">
+				SectionID = #{sectionId}
+			</if>
+		</where>
+	</select>
+
+	<select id="queryAreaNameById" parameterType="integer" resultType="string">
+		SELECT areaName FROM tb_Area
+		<where>
+			<if test="areaId != null">
+			  id = #{areaId}
+			</if>
+		</where>
+	</select>
+
+	<select id="selectSectionsById" parameterType="integer" resultType="java.util.HashMap">
+		SELECT b.SectionID,b.sectionName
+		from tb_station_area a LEFT JOIN tb_section b on a.SectionID = b.SectionID
+		<where>
+			<if test="areaId !=null">
+				a.AreaID = #{areaId}
+			</if>
+		</where>
+	</select>
+
+	<select id="queryAllNet" resultType="java.util.HashMap">
+		SELECT id,areaName FROM tb_Area
+	</select>
+
+	<select id="queryAllVolume" resultType="integer">
+		SELECT SUM(volume) as 'volume'
+		FROM tb_AreaOneHour
+		<where>
+			<if test="startDate!=null">
+				b.date BETWEEN #{startDate}
+			</if>
+			<if test="endDate !=null">
+				and #{endDate}
+			</if>
+		</where>
+	</select>
+</mapper>
